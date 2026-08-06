@@ -195,6 +195,7 @@ try {
         Pop-Location
     }
 
+    Invoke-TestScript -Path (Join-Path $repositoryRoot 'tests/reverse-engineer-service-tests.ps1')
     Write-Host '[ok] 모든 통합 테스트를 통과했습니다.'
 }
 finally {

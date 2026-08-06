@@ -1,0 +1,7 @@
+{
+  "name": "sample-ts-service",
+  "private": true,
+  "main": "src/server.ts",
+  "exports": "./src/server.ts",
+  "bin": { "sample": "./src/cli.ts" }
+}

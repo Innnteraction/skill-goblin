@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/reverse-engineer-service/code-facts.schema.json",
+  "title": "Reverse engineering code facts",
+  "type": "object",
+  "required": ["schema_version", "snapshot", "tools", "capabilities", "entrypoints", "modules", "symbols", "edges", "read_set", "diagnostics"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "snapshot": {
+      "type": "object",
+      "required": ["git_commit", "dirty", "source_digest"],
+      "properties": {
+        "git_commit": { "type": ["string", "null"] },
+        "dirty": { "type": ["boolean", "null"] },
+        "source_digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      },
+      "additionalProperties": false
+    },
+    "tools": { "type": "array", "items": { "$ref": "#/$defs/tool" } },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "entrypoints": { "type": "array", "items": { "$ref": "#/$defs/entrypoint" } },
+    "modules": { "type": "array", "items": { "$ref": "#/$defs/module" } },
+    "symbols": { "type": "array", "items": { "$ref": "#/$defs/symbol" } },
+    "edges": { "type": "array", "items": { "$ref": "#/$defs/edge" } },
+    "read_set": { "type": "array", "items": { "$ref": "#/$defs/readRange" } },
+    "diagnostics": { "type": "array", "items": { "$ref": "#/$defs/diagnostic" } }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "tool": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": { "name": { "type": "string" }, "version": { "type": "string" } },
+      "additionalProperties": false
+    },
+    "entrypoint": {
+      "type": "object",
+      "required": ["id", "path", "kind", "evidence", "resolution"],
+      "properties": {
+        "id": { "type": "string" }, "path": { "type": "string" }, "symbol": { "type": ["string", "null"] },
+        "kind": { "type": "string" }, "evidence": { "type": "string" },
+        "resolution": { "enum": ["resolved", "candidate", "syntactic", "external", "dynamic"] }
+      },
+      "additionalProperties": false
+    },
+    "module": {
+      "type": "object", "required": ["id", "path", "language"],
+      "properties": { "id": { "type": "string" }, "path": { "type": "string" }, "language": { "enum": ["javascript", "typescript", "python"] } },
+      "additionalProperties": false
+    },
+    "symbol": {
+      "type": "object", "required": ["id", "path", "name", "kind", "start_line", "end_line"],
+      "properties": {
+        "id": { "type": "string" }, "path": { "type": "string" }, "name": { "type": "string" }, "kind": { "type": "string" },
+        "start_line": { "type": "integer", "minimum": 1 }, "end_line": { "type": "integer", "minimum": 1 }
+      }, "additionalProperties": false
+    },
+    "edge": {
+      "type": "object", "required": ["from", "to", "type", "resolution"],
+      "properties": {
+        "from": { "type": "string" }, "to": { "type": "string" },
+        "type": { "enum": ["imports", "exports", "calls", "registers", "contains"] },
+        "resolution": { "enum": ["resolved", "candidate", "syntactic", "external", "dynamic"] },
+        "line": { "type": ["integer", "null"], "minimum": 1 }
+      }, "additionalProperties": false
+    },
+    "readRange": {
+      "type": "object", "required": ["path", "start_line", "end_line", "reason"],
+      "properties": {
+        "path": { "type": "string" }, "start_line": { "type": "integer", "minimum": 1 },
+        "end_line": { "type": "integer", "minimum": 1 }, "reason": { "type": "string" }
+      }, "additionalProperties": false
+    },
+    "diagnostic": {
+      "type": "object", "required": ["level", "code", "message"],
+      "properties": { "level": { "enum": ["info", "warning", "error"] }, "code": { "type": "string" }, "message": { "type": "string" } },
+      "additionalProperties": false
+    }
+  }
+}

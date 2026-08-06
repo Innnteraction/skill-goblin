@@ -1,0 +1,6 @@
+[project]
+name = "sample-service"
+version = "0.0.0"
+
+[project.scripts]
+sample-cli = "sample.cli:main"

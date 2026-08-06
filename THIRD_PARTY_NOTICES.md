@@ -18,6 +18,42 @@
 
 ## 아이디어 수준 참고 자료
 
+### 서비스 아키텍처 재구성 및 코드 탐색
+
+- Sources:
+  - https://github.com/lmammino/c4-codebase-architecture-skill
+  - https://github.com/CodeBoarding/CodeBoarding
+  - https://github.com/tecture-io/tecture
+  - https://github.com/OpenBMB/RepoAgent
+  - https://aider.chat/docs/repomap.html
+  - https://sourcegraph.com/docs/cody/core-concepts/code-graph
+  - https://backstage.io/docs/next/features/software-catalog/system-model/
+  - https://insights.sei.cmu.edu/documents/688/2002_005_001_14060.pdf
+  - https://c4model.com/introduction
+  - https://docs.arc42.org/section-6/
+  - https://www.uber.com/us/en/blog/distributed-tracing/
+  - https://www.uber.com/en-SE/blog/crisp-critical-path-analysis-for-microservice-architectures/
+  - https://opentelemetry.io/docs/concepts/signals/
+  - https://aws.amazon.com/blogs/migration-and-modernization/aws-transform-comprehensive-codebase-analysis-for-modernization/
+  - https://docs.github.com/en/copilot/tutorials/explore-a-codebase
+- Checked: 2026-08-06
+- License decision: 외부 코드나 Skill 문구를 반입하지 않고 아키텍처 view, 증거 계층, repository map, 인간 검토, 정적·런타임 대조 개념만 참고함. RepoAgent 등 MIT가 아닌 구현은 반입 대상으로 사용하지 않음
+- Scope: `skills/reverse-engineer-service/`의 목적 중심 인터뷰, intended/implemented/observed 구분, bounded graph 탐색, C4 구조와 런타임 시나리오, evidence ledger 설계
+- Included material: 원본 코드·프롬프트·도표·실질적 문구를 복사하지 않고 이 저장소의 요구사항에 맞춰 독자적으로 작성
+
+### 정적 분석 도구와 언어 API
+
+- Sources:
+  - https://www.typescriptlang.org/docs/handbook/modules/reference
+  - https://github.com/sverweij/dependency-cruiser
+  - https://github.com/ast-grep/ast-grep
+  - https://docs.python.org/3/library/ast.html
+  - https://jedi.readthedocs.io/en/stable/docs/features.html
+- Checked: 2026-08-06
+- License decision: 공개 API와 도구 capability를 확인하는 용도로만 참고하고 외부 구현 코드는 복사하지 않음. TypeScript Compiler API와 Python 표준 AST는 대상 저장소를 실행하지 않는 분석 backend로 호출함
+- Scope: JS/TS module resolution·symbol·call 후보, Python AST 기반 import·symbol·decorator·call 추출, 선택 도구의 존재 여부와 버전 기록
+- Included material: 저장소의 분석기와 JSON 계약은 독자적으로 작성했으며 dependency-cruiser, ast-grep, Jedi를 vendoring하거나 필수 의존성으로 추가하지 않음
+
 ### epoko77-ai, `im-not-ai`
 
 - Source: https://github.com/epoko77-ai/im-not-ai/tree/82137e858763dadb99561f194c5c00465735017b
