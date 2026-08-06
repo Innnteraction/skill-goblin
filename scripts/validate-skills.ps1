@@ -24,9 +24,31 @@ $errors = New-Object System.Collections.Generic.List[string]
 
 try {
     $root = Get-RepositoryRoot
+    $repositoryVersionPath = Join-Path $root 'VERSION'
+    if (-not (Test-Path -LiteralPath $repositoryVersionPath -PathType Leaf)) {
+        $errors.Add('루트 VERSION 파일이 없습니다.')
+    }
+    else {
+        $repositoryVersion = [IO.File]::ReadAllText($repositoryVersionPath, [Text.Encoding]::UTF8).Trim()
+        if ($repositoryVersion -notmatch '^(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)$') {
+            $errors.Add('루트 VERSION은 X.Y.Z 형식이어야 합니다.')
+        }
+    }
+
     $directories = @(Get-SkillDirectories -Root $root -Name $Name)
 
     foreach ($directory in $directories) {
+        $versionPath = Join-Path $directory.FullName 'VERSION'
+        if (-not (Test-Path -LiteralPath $versionPath -PathType Leaf)) {
+            $errors.Add("$($directory.Name): VERSION 파일이 없습니다.")
+        }
+        else {
+            $skillVersion = [IO.File]::ReadAllText($versionPath, [Text.Encoding]::UTF8).Trim()
+            if ($skillVersion -notmatch '^[1-9][0-9]*$') {
+                $errors.Add("$($directory.Name): VERSION은 점 없는 양의 정수여야 합니다.")
+            }
+        }
+
         $skillPath = Join-Path $directory.FullName 'SKILL.md'
         if (-not (Test-Path -LiteralPath $skillPath -PathType Leaf)) {
             $errors.Add("$($directory.Name): SKILL.md가 없습니다.")

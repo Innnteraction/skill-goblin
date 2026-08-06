@@ -13,8 +13,9 @@ try {
             'user.name'      = 'Innnteraction'
             'user.email'     = 'innnteractive@gmail.com'
             'core.hooksPath' = '.githooks'
+            'merge.ff'       = 'only'
             'pull.ff'        = 'only'
-            'push.default'   = 'current'
+            'push.default'   = 'nothing'
             'fetch.prune'    = 'true'
         }
 

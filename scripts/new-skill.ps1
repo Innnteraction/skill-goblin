@@ -32,6 +32,10 @@ try {
     if (-not (Test-Path -LiteralPath $templatePath -PathType Leaf)) {
         throw 'Skill 템플릿을 찾을 수 없습니다.'
     }
+    $versionTemplatePath = Join-Path $root 'templates/skill/VERSION'
+    if (-not (Test-Path -LiteralPath $versionTemplatePath -PathType Leaf)) {
+        throw 'Skill VERSION 템플릿을 찾을 수 없습니다.'
+    }
 
     $title = (($Name -split '-') | ForEach-Object {
         if ($_.Length -gt 0) { $_.Substring(0, 1).ToUpperInvariant() + $_.Substring(1) }
@@ -44,6 +48,8 @@ try {
 
     [IO.Directory]::CreateDirectory($destination) | Out-Null
     [IO.File]::WriteAllText((Join-Path $destination 'SKILL.md'), $content, (New-Object Text.UTF8Encoding($false)))
+    $version = [IO.File]::ReadAllText($versionTemplatePath, [Text.Encoding]::UTF8)
+    [IO.File]::WriteAllText((Join-Path $destination 'VERSION'), $version, (New-Object Text.UTF8Encoding($false)))
 
     if ($WithScripts) { [IO.Directory]::CreateDirectory((Join-Path $destination 'scripts')) | Out-Null }
     if ($WithReferences) { [IO.Directory]::CreateDirectory((Join-Path $destination 'references')) | Out-Null }

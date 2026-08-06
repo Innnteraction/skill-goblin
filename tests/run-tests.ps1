@@ -49,6 +49,8 @@ if ([string]::IsNullOrWhiteSpace($TempBase)) {
 $resolvedTempBase = [IO.Path]::GetFullPath($TempBase)
 [IO.Directory]::CreateDirectory($resolvedTempBase) | Out-Null
 $temporaryRoot = Join-Path $resolvedTempBase ("skill-goblin-tests-" + [Guid]::NewGuid().ToString('N'))
+$worktreeRoot = $temporaryRoot + '-worktrees'
+$remoteRoot = $temporaryRoot + '-remote.git'
 [IO.Directory]::CreateDirectory($temporaryRoot) | Out-Null
 
 try {
@@ -56,6 +58,7 @@ try {
         Copy-Item -LiteralPath (Join-Path $repositoryRoot $directoryName) -Destination (Join-Path $temporaryRoot $directoryName) -Recurse
     }
     Copy-Item -LiteralPath (Join-Path $repositoryRoot '.gitattributes') -Destination (Join-Path $temporaryRoot '.gitattributes')
+    Copy-Item -LiteralPath (Join-Path $repositoryRoot 'VERSION') -Destination (Join-Path $temporaryRoot 'VERSION')
     [IO.Directory]::CreateDirectory((Join-Path $temporaryRoot 'skills')) | Out-Null
 
     Push-Location $temporaryRoot
@@ -70,6 +73,9 @@ try {
         Assert-Equal 'Innnteraction' (& git config --local --get user.name) '로컬 Git 이름 설정 실패'
         Assert-Equal 'innnteractive@gmail.com' (& git config --local --get user.email) '로컬 Git 이메일 설정 실패'
         Assert-Equal '.githooks' (& git config --local --get core.hooksPath) 'hook 경로 설정 실패'
+        Assert-Equal 'only' (& git config --local --get merge.ff) 'fast-forward merge 설정 실패'
+        Assert-Equal 'only' (& git config --local --get pull.ff) 'fast-forward pull 설정 실패'
+        Assert-Equal 'nothing' (& git config --local --get push.default) 'main-only 명시 push 설정 실패'
         Assert-Equal $globalNameBefore (& git config --global --get user.name) '전역 Git 이름이 변경됨'
         Assert-Equal $globalEmailBefore (& git config --global --get user.email) '전역 Git 이메일이 변경됨'
 
@@ -79,6 +85,7 @@ try {
             '-WithScripts', '-WithReferences'
         )
         Assert-True (Test-Path -LiteralPath (Join-Path $temporaryRoot 'skills/sample-skill/SKILL.md')) 'Skill 생성 실패'
+        Assert-Equal '1' ([IO.File]::ReadAllText((Join-Path $temporaryRoot 'skills/sample-skill/VERSION')).Trim()) 'Skill 초기 VERSION 생성 실패'
         Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/validate-skills.ps1')
 
         foreach ($caseName in @('Bad_Name', ('a' * 65))) {
@@ -95,6 +102,7 @@ try {
         [IO.Directory]::CreateDirectory($brokenReferenceDirectory) | Out-Null
         $brokenReference = "---`nname: broken-reference`ndescription: '깨진 참조 검증용 Skill이다.'`n---`n`n[참조](references/missing.md)`n"
         [IO.File]::WriteAllText((Join-Path $brokenReferenceDirectory 'SKILL.md'), $brokenReference, [Text.Encoding]::UTF8)
+        [IO.File]::WriteAllText((Join-Path $brokenReferenceDirectory 'VERSION'), "1`n", [Text.Encoding]::UTF8)
         Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/validate-skills.ps1') -Arguments @('-Name', 'broken-reference', '-SkipSensitiveCheck') -ExpectedExitCode 1
         Remove-Item -LiteralPath $brokenReferenceDirectory -Recurse -Force
 
@@ -104,8 +112,35 @@ try {
         foreach ($line in @('---', 'name: long-skill', "description: '길이 제한 검증용 Skill이다.'", '---')) { $longLines.Add($line) }
         for ($lineNumber = 0; $lineNumber -lt 497; $lineNumber++) { $longLines.Add("검증 줄 $lineNumber") }
         [IO.File]::WriteAllLines((Join-Path $longSkillDirectory 'SKILL.md'), $longLines, [Text.Encoding]::UTF8)
+        [IO.File]::WriteAllText((Join-Path $longSkillDirectory 'VERSION'), "1`n", [Text.Encoding]::UTF8)
         Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/validate-skills.ps1') -Arguments @('-Name', 'long-skill', '-SkipSensitiveCheck') -ExpectedExitCode 1
         Remove-Item -LiteralPath $longSkillDirectory -Recurse -Force
+
+        foreach ($versionCase in @(
+            [PSCustomObject]@{ Name = 'missing-version'; Value = $null },
+            [PSCustomObject]@{ Name = 'zero-version'; Value = '0' },
+            [PSCustomObject]@{ Name = 'negative-version'; Value = '-1' },
+            [PSCustomObject]@{ Name = 'dotted-version'; Value = '1.0' }
+        )) {
+            $versionDirectory = Join-Path $temporaryRoot ("skills/" + $versionCase.Name)
+            [IO.Directory]::CreateDirectory($versionDirectory) | Out-Null
+            $versionSkill = "---`nname: $($versionCase.Name)`ndescription: 'VERSION 검증용 Skill이다.'`n---`n"
+            [IO.File]::WriteAllText((Join-Path $versionDirectory 'SKILL.md'), $versionSkill, [Text.Encoding]::UTF8)
+            if ($null -ne $versionCase.Value) {
+                [IO.File]::WriteAllText((Join-Path $versionDirectory 'VERSION'), ($versionCase.Value + "`n"), [Text.Encoding]::UTF8)
+            }
+            Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/validate-skills.ps1') -Arguments @('-Name', $versionCase.Name, '-SkipSensitiveCheck') -ExpectedExitCode 1
+            Remove-Item -LiteralPath $versionDirectory -Recurse -Force
+        }
+
+        $validRepositoryVersion = [IO.File]::ReadAllText((Join-Path $temporaryRoot 'VERSION'), [Text.Encoding]::UTF8)
+        try {
+            [IO.File]::WriteAllText((Join-Path $temporaryRoot 'VERSION'), "01.2.3`n", [Text.Encoding]::UTF8)
+            Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/validate-skills.ps1') -Arguments @('-SkipSensitiveCheck') -ExpectedExitCode 1
+        }
+        finally {
+            [IO.File]::WriteAllText((Join-Path $temporaryRoot 'VERSION'), $validRepositoryVersion, [Text.Encoding]::UTF8)
+        }
 
         $oldHome = $env:HOME
         $oldCodexHome = $env:CODEX_HOME
@@ -116,9 +151,11 @@ try {
             $env:CLAUDE_HOME = Join-Path $temporaryRoot 'claude-home'
             Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/install-skills.ps1') -Arguments @('-Target', 'All', '-Name', 'sample-skill')
             $codexCopy = Join-Path $env:HOME '.agents/skills/sample-skill/SKILL.md'
+            $codexVersionCopy = Join-Path $env:HOME '.agents/skills/sample-skill/VERSION'
             $legacyCodexCopy = Join-Path $env:CODEX_HOME 'skills/sample-skill/SKILL.md'
             $claudeCopy = Join-Path $env:CLAUDE_HOME 'skills/sample-skill/SKILL.md'
             Assert-True (Test-Path -LiteralPath $codexCopy) 'Codex 설치 실패'
+            Assert-Equal '1' ([IO.File]::ReadAllText($codexVersionCopy).Trim()) 'Codex 설치본 VERSION 누락'
             Assert-True (-not (Test-Path -LiteralPath $legacyCodexCopy)) 'Codex가 이전 CODEX_HOME/skills 경로를 사용함'
             Assert-True (Test-Path -LiteralPath $claudeCopy) 'Claude 설치 실패'
 
@@ -166,6 +203,73 @@ try {
         $headCommit = (& git rev-parse HEAD).Trim()
         Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/check-sensitive.ps1') -Arguments @('-Range', ($headCommit + '^!'), '-SkipGitleaks')
 
+        & git init --bare --initial-branch=main $remoteRoot | Out-Null
+        Assert-Equal 0 $LASTEXITCODE 'worktree 테스트용 bare remote 생성 실패'
+        & git remote add origin $remoteRoot
+        Assert-Equal 0 $LASTEXITCODE 'worktree 테스트용 remote 등록 실패'
+        & git push --no-verify -u origin main | Out-Host
+        Assert-Equal 0 $LASTEXITCODE '초기 main push 실패'
+
+        $worktreeA = Join-Path $worktreeRoot 'task-a'
+        $worktreeB = Join-Path $worktreeRoot 'task-b'
+        [IO.Directory]::CreateDirectory($worktreeRoot) | Out-Null
+        & git worktree add -b 'feat/task-a' $worktreeA main | Out-Host
+        Assert-Equal 0 $LASTEXITCODE '첫 worktree 생성 실패'
+        & git worktree add -b 'feat/task-b' $worktreeB main | Out-Host
+        Assert-Equal 0 $LASTEXITCODE '두 번째 worktree 생성 실패'
+
+        Push-Location $worktreeA
+        try {
+            [IO.File]::WriteAllText((Join-Path $worktreeA 'task-a.txt'), "task-a`n", [Text.Encoding]::UTF8)
+            & git add task-a.txt
+            & git commit -m 'feat: 첫 worktree 변경' | Out-Host
+            Assert-Equal 0 $LASTEXITCODE '첫 worktree commit 실패'
+        }
+        finally {
+            Pop-Location
+        }
+
+        Push-Location $worktreeB
+        try {
+            [IO.File]::WriteAllText((Join-Path $worktreeB 'task-b.txt'), "task-b`n", [Text.Encoding]::UTF8)
+            & git add task-b.txt
+            & git commit -m 'feat: 두 번째 worktree 변경' | Out-Host
+            Assert-Equal 0 $LASTEXITCODE '두 번째 worktree commit 실패'
+        }
+        finally {
+            Pop-Location
+        }
+
+        & git merge --ff-only 'feat/task-a' | Out-Host
+        Assert-Equal 0 $LASTEXITCODE '첫 worktree fast-forward 병합 실패'
+        Push-Location $worktreeB
+        try {
+            & git rebase main | Out-Host
+            Assert-Equal 0 $LASTEXITCODE '두 번째 worktree rebase 실패'
+        }
+        finally {
+            Pop-Location
+        }
+        & git merge --ff-only 'feat/task-b' | Out-Host
+        Assert-Equal 0 $LASTEXITCODE '두 번째 worktree fast-forward 병합 실패'
+        & git push --no-verify origin main | Out-Host
+        Assert-Equal 0 $LASTEXITCODE '통합된 main push 실패'
+
+        $remoteHeads = @(& git ls-remote --heads origin)
+        Assert-Equal 1 $remoteHeads.Count '원격에 main 외 작업 브랜치가 push됨'
+        Assert-True ($remoteHeads[0] -match 'refs/heads/main$') '원격 main ref를 찾지 못함'
+        Assert-Equal '' ((& git -C $worktreeA status --porcelain) -join "`n") '첫 worktree가 clean하지 않음'
+        Assert-Equal '' ((& git -C $worktreeB status --porcelain) -join "`n") '두 번째 worktree가 clean하지 않음'
+
+        & git worktree remove $worktreeA
+        Assert-Equal 0 $LASTEXITCODE '첫 worktree 제거 실패'
+        & git worktree remove $worktreeB
+        Assert-Equal 0 $LASTEXITCODE '두 번째 worktree 제거 실패'
+        & git branch -d 'feat/task-a' 'feat/task-b' | Out-Host
+        Assert-Equal 0 $LASTEXITCODE '병합된 worktree 브랜치 제거 실패'
+        $worktreeList = (& git worktree list --porcelain) -join "`n"
+        Assert-True (-not $worktreeList.Contains($worktreeRoot)) '제거한 worktree metadata가 남음'
+
         $mockBin = Join-Path $temporaryRoot 'mock-bin'
         [IO.Directory]::CreateDirectory($mockBin) | Out-Null
         [IO.File]::WriteAllText((Join-Path $mockBin 'gitleaks.cmd'), "@echo off`r`nexit /b 9`r`n", [Text.Encoding]::ASCII)
@@ -199,14 +303,17 @@ try {
     Write-Host '[ok] 모든 통합 테스트를 통과했습니다.'
 }
 finally {
-    $resolvedTemporaryRoot = [IO.Path]::GetFullPath($temporaryRoot)
-    if ($resolvedTemporaryRoot.StartsWith($resolvedTempBase, [StringComparison]::OrdinalIgnoreCase) -and
-        (Split-Path -Leaf $resolvedTemporaryRoot).StartsWith('skill-goblin-tests-')) {
-        try {
-            Remove-Item -LiteralPath $resolvedTemporaryRoot -Recurse -Force -ErrorAction Stop
-        }
-        catch {
-            Write-Warning "임시 테스트 폴더를 자동 삭제하지 못했습니다: $resolvedTemporaryRoot"
+    foreach ($cleanupPath in @($temporaryRoot, $worktreeRoot, $remoteRoot)) {
+        $resolvedCleanupPath = [IO.Path]::GetFullPath($cleanupPath)
+        if ($resolvedCleanupPath.StartsWith($resolvedTempBase, [StringComparison]::OrdinalIgnoreCase) -and
+            (Split-Path -Leaf $resolvedCleanupPath).StartsWith('skill-goblin-tests-') -and
+            (Test-Path -LiteralPath $resolvedCleanupPath)) {
+            try {
+                Remove-Item -LiteralPath $resolvedCleanupPath -Recurse -Force -ErrorAction Stop
+            }
+            catch {
+                Write-Warning "임시 테스트 폴더를 자동 삭제하지 못했습니다: $resolvedCleanupPath"
+            }
         }
     }
 }

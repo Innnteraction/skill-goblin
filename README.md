@@ -105,11 +105,11 @@ Codex도 clone한 저장소에서 같은 스크립트를 사용할 수 있다. `
 
 ## 기본 사용 흐름
 
-1. **Create** — 템플릿에서 `skills/<skill-name>/SKILL.md`와 필요한 보조 디렉터리를 만든다.
+1. **Create** — 템플릿에서 `skills/<skill-name>/SKILL.md`, 내부 `VERSION`과 필요한 보조 디렉터리를 만든다.
 2. **Validate** — 구조, frontmatter, 이름, 참조 경로, 길이와 민감정보를 검사한다.
 3. **Install** — 검증된 Skill을 Codex·Claude Code 개인 경로로 복사한다.
 4. **Use** — Codex에서는 `$skill-name`, Claude Code에서는 `/skill-name`으로 명시적으로 호출하거나 설명과 일치하는 작업에서 자동 선택되게 한다.
-5. **Update** — 공용 원본만 수정하고 다시 검증·설치한다. 설치된 복사본은 직접 편집하지 않는다.
+5. **Update** — 공용 원본과 내부 `VERSION`을 수정하고 다시 검증·설치한다. 설치된 복사본은 직접 편집하지 않는다.
 
 ## 주요 명령
 
@@ -132,12 +132,14 @@ Codex도 clone한 저장소에서 같은 스크립트를 사용할 수 있다. `
 skills/
 └── <skill-name>/
     ├── SKILL.md          필수: name, description과 핵심 지침
+    ├── VERSION           필수: 설치 산출물의 점 없는 양의 정수 버전
     ├── references/       선택: 필요할 때만 읽는 상세 자료와 provenance
     ├── scripts/          선택: 반복 가능하고 결정적인 작업
     └── assets/           선택: 템플릿과 출력 재료
 ```
 
 - 이름은 64자 이하의 kebab-case를 사용한다.
+- 새 Skill의 `VERSION`은 `1`이며 해당 Skill의 설치 산출물이 바뀌는 통합 작업마다 1 올린다.
 - `SKILL.md`의 YAML frontmatter에는 공통 호환성을 위해 `name`과 `description`만 둔다.
 - 본문은 500줄 미만을 권장하며 내부 경로는 운영체제와 관계없이 `/`로 표기한다.
 - 설명은 Skill의 용도와 호출 시점을 구체적으로 적어 Codex와 Claude Code가 올바르게 선택할 수 있게 한다.
@@ -165,13 +167,13 @@ Windows에서 `$HOME`이 비어 있으면 사용자 프로필 디렉터리를 �
 
 ## 버전과 릴리스
 
-이 저장소는 초기 단계에서 약식 [Semantic Versioning 2.0.0](https://semver.org/) 정책을 사용한다.
+루트 [VERSION](VERSION)은 마지막으로 배포된 전체 버전이며 [Semantic Versioning 2.0.0](https://semver.org/)의 `X.Y.Z` 형식을 사용한다. 일상적인 `main` 통합에서는 바꾸지 않고 명시적인 배포에서만 갱신한다.
 
-- `0.y.0`: 새 Skill 추가, 기존 Skill의 동작 변경, 설치 계약 변경
-- `0.y.z`: 호환 가능한 수정과 문서 보완
-- `1.0.0`: Skill 이름·호출 방식·설치 경로를 안정된 계약으로 선언하는 첫 버전
+- `X+1.0.0`: 공용 Skill 계약이나 설치·배포 방식의 비호환 변경
+- `X.Y+1.0`: 하나 이상의 새 Skill 추가
+- `X.Y.Z+1`: 기존 Skill 수정 또는 호환 가능한 설치기·검증기·공용 문서 변경
 
-릴리스는 이동하지 않는 annotated `vX.Y.Z` [Git 태그](https://git-scm.com/docs/git-tag)로 표시한다. 공개한 태그는 수정하거나 강제로 옮기지 않으며, 문제는 다음 patch 버전으로 고친다. `main`은 최신 평가용이고 버전 태그는 재현 가능한 설치용이다.
+각 Skill의 `VERSION`은 설치 산출물의 독립적인 revision이며 전체 배포 버전과 별도로 증가한다. 릴리스는 이동하지 않는 annotated `vX.Y.Z` [Git 태그](https://git-scm.com/docs/git-tag)로 표시한다. 공개한 태그는 수정하거나 강제로 옮기지 않으며, 문제는 다음 patch 버전으로 고친다. 상세 절차는 [Git 작업·버전·릴리스](docs/agent/git-workflow-and-releases.md)를 따른다.
 
 ## 보안과 외부 자료
 
@@ -197,7 +199,7 @@ Windows에서 `$HOME`이 비어 있으면 사용자 프로필 디렉터리를 �
 git diff --check
 ```
 
-Git 운영은 `main`을 안정 상태로 유지하고 `feat/*`, `fix/*`, `chore/*` 작업 브랜치를 짧게 사용한 뒤 squash 병합하는 방식을 기본으로 한다. 커밋 메시지는 [커밋 메시지 작성 Skill](skills/write-commit-message/SKILL.md)의 확장 타입 접두사를 사용하고 제목은 한국어 또는 영어를 허용한다. Conventional Commits 자체를 엄격히 강제하거나 별도 hook으로 검사하지는 않는다.
+Git 운영은 `main`을 통합 전용 안정 상태로 유지하고 `feat/*`, `fix/*`, `chore/*` 작업 브랜치를 짧게 사용한다. 동시 세션은 sibling worktree로 격리하고 완료한 브랜치는 최신 `main`에 rebase한 뒤 `--ff-only`로 병합하며 기본적으로 `main`만 push한다. 커밋 메시지는 [커밋 메시지 작성 Skill](skills/write-commit-message/SKILL.md)의 확장 타입 접두사를 사용하고 제목은 한국어 또는 영어를 허용한다. 상세 절차는 [Git 작업·버전·릴리스](docs/agent/git-workflow-and-releases.md)를 따른다.
 
 Agent가 항상 따라야 할 원칙은 [AGENTS.md](AGENTS.md)에 간결하게 유지한다. 특정 작업에서만 필요한 상세 절차는 [Agent 참조 인덱스](docs/agent/INDEX.md)로 연결하고, 규칙을 추가하거나 정리할 때는 [컨텍스트 유지관리 기준](docs/agent/context-maintenance.md)을 적용한다.
 
@@ -208,6 +210,7 @@ Agent가 항상 따라야 할 원칙은 [AGENTS.md](AGENTS.md)에 간결하게 �
 | [AGENTS.md](AGENTS.md) | Codex와 Agent가 항상 적용할 구현·저장소 원칙 |
 | [CLAUDE.md](CLAUDE.md) | Claude Code에서 공통 지침으로 연결하는 진입점 |
 | [Agent 참조 인덱스](docs/agent/INDEX.md) | 작업 단계에 따라 선택적으로 읽을 정본 문서 안내 |
+| [Git 작업·버전·릴리스](docs/agent/git-workflow-and-releases.md) | 동시 세션 worktree, main 통합, Skill·배포 버전 절차 |
 | [SECURITY.md](SECURITY.md) | 반입 금지 정보, 공개 전 사람 검토, 유출 대응 |
 | [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) | 외부 Skill과 아이디어 수준 참고 자료의 출처 기록 |
 
