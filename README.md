@@ -11,6 +11,7 @@ Codex와 Claude Code에서 함께 사용할 개인용 Agent Skill을 로컬에�
 | `write-commit-message` | 프로젝트 규약과 변경 의도를 반영해 커밋 메시지를 작성·수정·검토한다. | `$write-commit-message` |
 | `polish-korean` | 의미와 필자의 목소리를 보존하면서 한국어 문서를 자연스럽고 명료하게 윤문한다. | `$polish-korean` |
 | `reverse-engineer-service` | 코드·설정·인프라·런타임 증거를 대조해 서비스 구조와 대표 시나리오를 재구성한다. | `$reverse-engineer-service` |
+| `write-diataxis-docs` | 검증된 자료를 독자의 목적에 맞는 튜토리얼·방법 안내서·참조·설명 문서로 작성·재구성·검토한다. | `$write-diataxis-docs` |
 
 한국어 문서를 보수적으로 윤문하려면 다음처럼 호출한다.
 
@@ -27,7 +28,13 @@ $polish-korean 강도: 보수
 $reverse-engineer-service 이 저장소가 제공하는 가치와 전체 구조에서 시작해 주문 생성의 성공 경로와 비동기 실패 경로를 추적해줘.
 ```
 
-Skill은 대상 저장소의 코드를 실행하지 않는 정적 분석기로 엔트리포인트와 읽을 범위를 먼저 추출한다. Python은 표준 AST만으로 동작한다. JavaScript/TypeScript의 의미 기반 trace에는 대상 저장소의 `typescript` 또는 명시적인 TypeScript Compiler API 경로가 필요하다. Compiler API가 없고 대상 저장소에 `dependency-cruiser`가 있으면 module-only trace로 축소하며, 둘 다 없으면 패키지를 자동 설치하지 않고 manifest 탐색까지만 수행한다.
+역공학 결과를 운영자를 위한 방법 안내서로 바꾸려면 다음처럼 호출한다.
+
+```text
+$write-diataxis-docs docs/reverse-engineering의 근거를 사용해 실패한 주문 처리만 안전하게 재실행하는 방법 안내서를 작성해줘.
+```
+
+`reverse-engineer-service`는 대상 저장소의 코드를 실행하지 않는 정적 분석기로 엔트리포인트와 읽을 범위를 먼저 추출한다. Python은 표준 AST만으로 동작한다. JavaScript/TypeScript의 의미 기반 trace에는 대상 저장소의 `typescript` 또는 명시적인 TypeScript Compiler API 경로가 필요하다. Compiler API가 없고 대상 저장소에 `dependency-cruiser`가 있으면 module-only trace로 축소하며, 둘 다 없으면 패키지를 자동 설치하지 않고 manifest 탐색까지만 수행한다.
 
 ## 지원 범위
 

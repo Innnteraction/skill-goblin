@@ -18,6 +18,18 @@
 
 ## 아이디어 수준 참고 자료
 
+### Diátaxis 문서 설계
+
+- Sources:
+  - https://diataxis.fr/
+  - https://diataxis.fr/compass/
+  - https://diataxis.fr/quality/
+  - https://github.com/joshuadavidthomas/agent-skills/tree/main/skills/diataxis
+- Checked: 2026-08-06
+- License decision: Diátaxis 공식 자료와 공개 Skill의 CC BY-SA 4.0 기반 설명은 외부 코드·Skill 문구의 반입 대상으로 사용하지 않고, 네 가지 사용자 필요, 유형 판별과 점진적 문서 개선 개념만 참고함
+- Scope: `skills/write-diataxis-docs/`의 문서 계약, 유형 선택, 유형 간 내용 분리, 근거 검증과 독자 경험 검토 설계
+- Included material: 원문의 문구·템플릿·도표를 복사하거나 번역하지 않고 이 저장소의 역공학 evidence 계약과 소프트웨어·제품 문서 요구에 맞춰 독자적으로 작성
+
 ### 서비스 아키텍처 재구성 및 코드 탐색
 
 - Sources:
