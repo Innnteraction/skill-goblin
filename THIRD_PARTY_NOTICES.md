@@ -18,6 +18,16 @@
 
 ## 아이디어 수준 참고 자료
 
+### 커밋 메시지 구조와 trailer
+
+- Sources:
+  - https://www.conventionalcommits.org/en/v1.0.0/
+  - https://git-scm.com/docs/git-interpret-trailers
+- Checked: 2026-08-06
+- License decision: 공식 규격을 동작과 인터페이스 확인에만 사용하고 외부 코드·Skill 문구의 반입 대상으로 사용하지 않음
+- Scope: 확장 가능한 `<type>[(scope)]: <summary>` 구조와 메시지 마지막의 기계 판독 가능한 trailer 배치를 아이디어 수준에서 참고
+- Included material: 원문의 예시와 실질적 문구를 복사하지 않고 이 저장소의 다분야 작업 및 Agent 표기 요구에 맞춰 독자적으로 작성
+
 ### AX LABS, 「600억 토큰을 태우고 남은 8줄」
 
 - Source: https://theaxlabs.com/blog/context-file-eight-lines-prompt-guide

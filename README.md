@@ -120,7 +120,7 @@ Windows에서 `$HOME`이 비어 있으면 사용자 프로필 디렉터리를 �
 git diff --check
 ```
 
-Git 운영은 `main`을 안정 상태로 유지하고 `feat/*`, `fix/*`, `chore/*` 작업 브랜치를 짧게 사용한 뒤 squash 병합하는 방식을 기본으로 한다. 커밋 제목은 한국어 또는 영어를 허용하며 Conventional Commits를 강제하지 않는다.
+Git 운영은 `main`을 안정 상태로 유지하고 `feat/*`, `fix/*`, `chore/*` 작업 브랜치를 짧게 사용한 뒤 squash 병합하는 방식을 기본으로 한다. 커밋 메시지는 [커밋 메시지 작성 Skill](skills/write-commit-message/SKILL.md)의 확장 타입 접두사를 사용하고 제목은 한국어 또는 영어를 허용한다. Conventional Commits 자체를 엄격히 강제하거나 별도 hook으로 검사하지는 않는다.
 
 Agent가 항상 따라야 할 원칙은 [AGENTS.md](AGENTS.md)에 간결하게 유지한다. 특정 작업에서만 필요한 상세 절차는 [Agent 참조 인덱스](docs/agent/INDEX.md)로 연결하고, 규칙을 추가하거나 정리할 때는 [컨텍스트 유지관리 기준](docs/agent/context-maintenance.md)을 적용한다.
 
