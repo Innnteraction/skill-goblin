@@ -4,7 +4,7 @@ Codex와 Claude Code에서 함께 사용할 개인용 Agent Skill을 로컬에�
 
 문서와 Skill 본문은 한국어를 기본으로 작성하며, Skill 이름과 코드 식별자는 검색성과 호환성을 위해 영어를 사용한다. 클라우드 Skill, GitHub Actions, 외부 서비스 연동은 다루지 않는다.
 
-> 현재 저장소에는 개별 Skill이 아직 없다. 생성·검증·설치·보안 기반부터 안정화한 뒤 필요한 Skill을 추가한다.
+> 현재 `write-commit-message` Skill을 제공한다. 커밋 메시지 작성·수정·검토 시 프로젝트 규약을 우선하면서 변경 의도를 읽기 쉽게 정리한다.
 
 ## 지원 범위
 
@@ -39,6 +39,40 @@ cd skill-goblin
 ./scripts/install-skills.sh --target all --name summarize-changes
 ```
 
+## GitHub에서 설치
+
+재현 가능한 설치에는 `v0.1.0` 태그를 사용한다. `main`은 다음 릴리스 전 변경을 평가하려는 경우에만 태그 자리에 사용한다.
+
+Codex에서는 `$skill-installer`에 GitHub의 Skill 경로와 설치 목적지를 함께 전달한다. 전역 설치 요청은 다음과 같다.
+
+```text
+$skill-installer Install https://github.com/Innnteraction/skill-goblin/tree/v0.1.0/skills/write-commit-message into $HOME/.agents/skills.
+```
+
+특정 프로젝트에만 설치하려면 해당 저장소의 절대 경로 아래 `.agents/skills`를 목적지로 지정한다.
+
+```text
+$skill-installer Install https://github.com/Innnteraction/skill-goblin/tree/v0.1.0/skills/write-commit-message into <project>/.agents/skills.
+```
+
+Claude Code의 standalone Skill은 저장소를 clone한 뒤 공용 설치 스크립트로 복사한다. GitHub marketplace나 plugin manifest는 사용하지 않는다.
+
+```powershell
+git clone --branch v0.1.0 https://github.com/Innnteraction/skill-goblin.git
+Set-Location skill-goblin
+./scripts/install-skills.ps1 -Target Claude -Name write-commit-message
+./scripts/install-skills.ps1 -Target Claude -Scope Project -ProjectPath <project> -Name write-commit-message
+```
+
+```bash
+git clone --branch v0.1.0 https://github.com/Innnteraction/skill-goblin.git
+cd skill-goblin
+./scripts/install-skills.sh --target claude --name write-commit-message
+./scripts/install-skills.sh --target claude --scope project --project-path <project> --name write-commit-message
+```
+
+Codex도 clone한 저장소에서 같은 스크립트를 사용할 수 있다. `--target codex` 또는 `-Target Codex`를 선택하면 된다. 설치 후 새 Skill은 다음 Agent 대화부터 사용할 수 있다.
+
 ## 기본 사용 흐름
 
 1. **Create** — 템플릿에서 `skills/<skill-name>/SKILL.md`와 필요한 보조 디렉터리를 만든다.
@@ -56,6 +90,7 @@ cd skill-goblin
 | 전체 Skill 검증 | `./scripts/validate-skills.ps1` | `./scripts/validate-skills.sh` |
 | 특정 Skill 설치 | `./scripts/install-skills.ps1 -Target All -Name <name>` | `./scripts/install-skills.sh --target all --name <name>` |
 | 전체 Skill 설치 | `./scripts/install-skills.ps1 -Target All` | `./scripts/install-skills.sh --target all` |
+| 프로젝트에 특정 Skill 설치 | `./scripts/install-skills.ps1 -Target All -Scope Project -ProjectPath <project> -Name <name>` | `./scripts/install-skills.sh --target all --scope project --project-path <project> --name <name>` |
 | staged 민감정보 검사 | `./scripts/check-sensitive.ps1 -Staged` | `./scripts/check-sensitive.sh -Staged` |
 | 전체 민감정보 검사 | `./scripts/check-sensitive.ps1 -All` | `./scripts/check-sensitive.sh -All` |
 
@@ -82,10 +117,10 @@ skills/
 
 ## 설치와 동기화
 
-| 대상 | 기본 개인 Skill 경로 | 저장소 전용 override |
+| 대상 | `User` 범위 | `Project` 범위 |
 | --- | --- | --- |
-| Codex | `$HOME/.agents/skills/<skill-name>` | 없음 |
-| Claude Code | `~/.claude/skills/<skill-name>` | `CLAUDE_HOME/skills/<skill-name>` |
+| Codex | `$HOME/.agents/skills/<skill-name>` | `<project>/.agents/skills/<skill-name>` |
+| Claude Code | `~/.claude/skills/<skill-name>` 또는 `CLAUDE_HOME/skills/<skill-name>` | `<project>/.claude/skills/<skill-name>` |
 
 Windows에서 `$HOME`이 비어 있으면 사용자 프로필 디렉터리를 사용한다. Codex의 이전 설치 위치였던 `$CODEX_HOME/skills` 또는 `~/.codex/skills`는 더 이상 설치 대상으로 사용하지 않으며 기존 복사본을 자동 삭제하지 않는다. 필요한 Skill이 새 경로에 정상 설치됐는지 확인한 뒤 이전 복사본을 별도로 정리한다.
 
@@ -95,6 +130,18 @@ Windows에서 `$HOME`이 비어 있으면 사용자 프로필 디렉터리를 �
 - 다른 내용이 있으면 기본적으로 중단하고 충돌 경로를 보고한다.
 - 의도적으로 교체할 때만 `-Force` 또는 `--force`를 사용한다.
 - `-Target Codex`, `Claude`, `All` 중 하나로 설치 대상을 선택한다.
+- 설치 범위의 기본값은 기존 동작과 같은 `User`다.
+- `Project` 범위에서는 존재하는 디렉터리를 `-ProjectPath` 또는 `--project-path`로 반드시 지정한다.
+
+## 버전과 릴리스
+
+이 저장소는 초기 단계에서 약식 [Semantic Versioning 2.0.0](https://semver.org/) 정책을 사용한다.
+
+- `0.y.0`: 새 Skill 추가, 기존 Skill의 동작 변경, 설치 계약 변경
+- `0.y.z`: 호환 가능한 수정과 문서 보완
+- `1.0.0`: Skill 이름·호출 방식·설치 경로를 안정된 계약으로 선언하는 첫 버전
+
+릴리스는 이동하지 않는 annotated `vX.Y.Z` [Git 태그](https://git-scm.com/docs/git-tag)로 표시한다. 공개한 태그는 수정하거나 강제로 옮기지 않으며, 문제는 다음 patch 버전으로 고친다. `main`은 최신 평가용이고 버전 태그는 재현 가능한 설치용이다.
 
 ## 보안과 외부 자료
 

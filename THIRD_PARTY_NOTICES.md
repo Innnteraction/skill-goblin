@@ -18,6 +18,19 @@
 
 ## 아이디어 수준 참고 자료
 
+### Skill 설치 경로와 릴리스 버전
+
+- Sources:
+  - https://learn.chatgpt.com/docs/build-skills
+  - https://code.claude.com/docs/en/slash-commands
+  - https://code.claude.com/docs/en/plugin-marketplaces
+  - https://semver.org/
+  - https://git-scm.com/docs/git-tag
+- Checked: 2026-08-06
+- License decision: 공식 문서를 설치 위치·배포 방식·버전 규칙 확인에만 사용하고 외부 코드나 실질적 문구의 반입 대상으로 사용하지 않음
+- Scope: Codex와 Claude Code의 사용자·프로젝트 Skill 위치, standalone Skill과 plugin marketplace의 경계, 초기 `0.y.z` 버전과 annotated 태그 운영을 아이디어 수준에서 참고
+- Included material: 원문의 예시와 실질적 문구를 복사하지 않고 이 저장소의 공용 설치 스크립트와 공개 정책에 맞춰 독자적으로 작성
+
 ### 커밋 메시지 구조와 trailer
 
 - Sources:

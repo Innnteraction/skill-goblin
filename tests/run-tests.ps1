@@ -26,6 +26,22 @@ function Invoke-TestScript {
     Assert-Equal -Expected $ExpectedExitCode -Actual $LASTEXITCODE -Message "예상하지 못한 종료 코드: $Path"
 }
 
+function Get-BashCommand {
+    if ($env:OS -eq 'Windows_NT') {
+        $gitBash = 'C:\Program Files\Git\bin\bash.exe'
+        if (Test-Path -LiteralPath $gitBash -PathType Leaf) { return $gitBash }
+    }
+    $bash = Get-Command bash -ErrorAction Stop
+    return $bash.Source
+}
+
+function Invoke-BashTestScript {
+    param([string]$Path, [string[]]$Arguments = @(), [int]$ExpectedExitCode = 0)
+    $bash = Get-BashCommand
+    & $bash $Path @Arguments | Out-Host
+    Assert-Equal -Expected $ExpectedExitCode -Actual $LASTEXITCODE -Message "예상하지 못한 Bash 종료 코드: $Path"
+}
+
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 if ([string]::IsNullOrWhiteSpace($TempBase)) {
     $TempBase = [IO.Path]::GetTempPath()
@@ -110,6 +126,32 @@ try {
             Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/install-skills.ps1') -Arguments @('-Target', 'Codex', '-Name', 'sample-skill') -ExpectedExitCode 1
             Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/install-skills.ps1') -Arguments @('-Target', 'Codex', '-Name', 'sample-skill', '-Force')
             Assert-True (-not ([IO.File]::ReadAllText($codexCopy).Contains('충돌'))) 'Force 재설치 실패'
+
+            Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/install-skills.ps1') -Arguments @('-Scope', 'Project', '-Name', 'sample-skill') -ExpectedExitCode 1
+            Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/install-skills.ps1') -Arguments @('-Scope', 'Project', '-ProjectPath', (Join-Path $temporaryRoot 'missing-project'), '-Name', 'sample-skill') -ExpectedExitCode 1
+            Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/install-skills.ps1') -Arguments @('-Scope', 'User', '-ProjectPath', $temporaryRoot, '-Name', 'sample-skill') -ExpectedExitCode 1
+
+            $projectInstallRoot = Join-Path $temporaryRoot 'target-project'
+            [IO.Directory]::CreateDirectory($projectInstallRoot) | Out-Null
+            Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/install-skills.ps1') -Arguments @('-Target', 'All', '-Scope', 'Project', '-ProjectPath', $projectInstallRoot, '-Name', 'sample-skill')
+            $projectCodexCopy = Join-Path $projectInstallRoot '.agents/skills/sample-skill/SKILL.md'
+            $projectClaudeCopy = Join-Path $projectInstallRoot '.claude/skills/sample-skill/SKILL.md'
+            Assert-True (Test-Path -LiteralPath $projectCodexCopy) 'Codex 프로젝트 설치 실패'
+            Assert-True (Test-Path -LiteralPath $projectClaudeCopy) 'Claude 프로젝트 설치 실패'
+
+            [IO.File]::AppendAllText($projectCodexCopy, "`n충돌`n", [Text.Encoding]::UTF8)
+            Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/install-skills.ps1') -Arguments @('-Target', 'Codex', '-Scope', 'Project', '-ProjectPath', $projectInstallRoot, '-Name', 'sample-skill') -ExpectedExitCode 1
+            Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/install-skills.ps1') -Arguments @('-Target', 'Codex', '-Scope', 'Project', '-ProjectPath', $projectInstallRoot, '-Name', 'sample-skill', '-Force')
+            Assert-True (-not ([IO.File]::ReadAllText($projectCodexCopy).Contains('충돌'))) '프로젝트 Force 재설치 실패'
+
+            Invoke-BashTestScript -Path './scripts/install-skills.sh' -Arguments @('--target', 'all', '--name', 'sample-skill')
+            $bashProjectRoot = Join-Path $temporaryRoot 'bash-target-project'
+            [IO.Directory]::CreateDirectory($bashProjectRoot) | Out-Null
+            Invoke-BashTestScript -Path './scripts/install-skills.sh' -Arguments @('--target', 'all', '--scope', 'project', '--project-path', $bashProjectRoot, '--name', 'sample-skill')
+            Assert-True (Test-Path -LiteralPath (Join-Path $bashProjectRoot '.agents/skills/sample-skill/SKILL.md')) 'Bash Codex 프로젝트 설치 실패'
+            Assert-True (Test-Path -LiteralPath (Join-Path $bashProjectRoot '.claude/skills/sample-skill/SKILL.md')) 'Bash Claude 프로젝트 설치 실패'
+            Invoke-BashTestScript -Path './scripts/install-skills.sh' -Arguments @('--scope', 'project', '--name', 'sample-skill') -ExpectedExitCode 1
+            Invoke-BashTestScript -Path './scripts/install-skills.sh' -Arguments @('--project-path') -ExpectedExitCode 2
         }
         finally {
             $env:HOME = $oldHome
