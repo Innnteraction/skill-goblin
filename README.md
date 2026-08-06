@@ -36,9 +36,16 @@ scripts/                   생성, 검증, 설치, 보안 검사 도구
 .githooks/                 추적되는 pre-commit/pre-push hook
 AGENTS.md                  Codex와 Agent가 따를 공통 규칙
 CLAUDE.md                  Claude Code에서 공통 규칙을 연결
+docs/agent/                작업 단계별 Agent 참조 인덱스와 유지관리 기준
 ```
 
 각 Skill은 `skills/<skill-name>/SKILL.md`를 진입점으로 사용한다. `SKILL.md`의 YAML frontmatter에는 공통 호환성을 위해 `name`과 `description`만 둔다. 자세한 자료는 `references/`, 반복 가능한 코드는 `scripts/`, 출력에 쓰는 재료는 `assets/`에 필요한 경우에만 추가한다.
+
+## Agent 지침 사용
+
+[AGENTS.md](AGENTS.md)에는 모든 작업에서 필요한 구현 원칙과 저장소 고유 원칙만 둔다. 프로젝트 구조나 전체 명령처럼 탐색 가능한 정보와 단계별 체크리스트는 반복하지 않는다.
+
+외부 자료 반입, Skill 수정, 스크립트 작성, 커밋·푸시 준비처럼 특정 단계에 들어가면 [Agent 참조 인덱스](docs/agent/INDEX.md)에서 현재 작업과 일치하는 행만 읽는다. Agent 지침을 추가하거나 정리할 때는 [컨텍스트 유지관리 기준](docs/agent/context-maintenance.md)을 적용한다.
 
 ## Skill 설치
 
