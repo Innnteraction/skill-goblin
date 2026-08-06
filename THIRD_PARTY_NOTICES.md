@@ -18,6 +18,16 @@
 
 ## 아이디어 수준 참고 자료
 
+### epoko77-ai, `im-not-ai`
+
+- Source: https://github.com/epoko77-ai/im-not-ai/tree/82137e858763dadb99561f194c5c00465735017b
+- Revision: `82137e858763dadb99561f194c5c00465735017b` (`v2.3.0`)
+- Checked: 2026-08-06
+- Author/Copyright: `Copyright (c) 2026 epoko77-ai`
+- License decision: MIT 라이선스(https://github.com/epoko77-ai/im-not-ai/blob/82137e858763dadb99561f194c5c00465735017b/LICENSE)를 확인했으며 외부 코드나 실질적 문구의 반입 대상으로 사용하지 않음
+- Scope: 의미 보존, 장르·격식 유지, 국소 편집, 번역투·AI 상투어 완화, 과윤문 방지와 추상 주어·긴 관형 수식·명사화·국소 자연성 재검수 개념(A-15, A-18, D-5, F-4/F-5, finalizer)을 `skills/polish-korean/` 설계에 아이디어 수준으로 참고
+- Included material: 원본 실행 파이프라인, 규칙 문구와 보조 자료를 복사하지 않고 단일 프롬프트형 범용 윤문 절차를 독자적으로 작성
+
 ### Skill 설치 경로와 릴리스 버전
 
 - Sources:

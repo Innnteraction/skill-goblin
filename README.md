@@ -4,7 +4,21 @@ Codex와 Claude Code에서 함께 사용할 개인용 Agent Skill을 로컬에�
 
 문서와 Skill 본문은 한국어를 기본으로 작성하며, Skill 이름과 코드 식별자는 검색성과 호환성을 위해 영어를 사용한다. 클라우드 Skill, GitHub Actions, 외부 서비스 연동은 다루지 않는다.
 
-> 현재 `write-commit-message` Skill을 제공한다. 커밋 메시지 작성·수정·검토 시 프로젝트 규약을 우선하면서 변경 의도를 읽기 쉽게 정리한다.
+현재 다음 Skill을 제공한다.
+
+| Skill | 용도 | 명시 호출 |
+| --- | --- | --- |
+| `write-commit-message` | 프로젝트 규약과 변경 의도를 반영해 커밋 메시지를 작성·수정·검토한다. | `$write-commit-message` |
+| `polish-korean` | 의미와 필자의 목소리를 보존하면서 한국어 문서를 자연스럽고 명료하게 윤문한다. | `$polish-korean` |
+
+한국어 문서를 보수적으로 윤문하려면 다음처럼 호출한다.
+
+```text
+$polish-korean 강도: 보수
+이 문서를 수치와 고유명사를 유지하면서 자연스럽게 윤문해줘:
+
+[본문]
+```
 
 ## 지원 범위
 
