@@ -29,7 +29,7 @@ description: '코드, 설정, IaC, 테스트, 문서와 런타임 증거를 대�
 
 ## 코드 탐색
 
-1. 임시 디렉터리를 만들고 `scripts/analyze-code.ps1 discover --root <repo> --output <temp>/facts.json`을 실행한다. Bash에서는 `scripts/analyze-code.sh`을 사용한다.
+1. 임시 디렉터리를 만들고 Windows에서는 `scripts/analyze-code.ps1 discover --root <repo> --output <temp>/facts.json`, macOS·Linux에서는 `scripts/analyze-code.sh discover --root <repo> --output <temp>/facts.json`을 실행한다.
 2. 후보가 여러 개면 질문, manifest 근거, 대표 가치 흐름을 기준으로 사용자와 엔트리포인트를 정한다. 임의로 고르지 않는다.
 3. `trace --entry <file[#symbol]|file:line>`을 실행한다. 큰 그래프는 `--max-depth`와 `--max-nodes`로 제한한다.
 4. `read_set`의 파일과 줄 범위, 미해결 frontier만 우선 읽는다. `candidate`, `syntactic`, `dynamic` edge는 코드에서 확인하고도 불명확하면 그대로 남긴다.

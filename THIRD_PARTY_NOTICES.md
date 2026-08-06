@@ -76,7 +76,7 @@
 - Scope: 의미 보존, 장르·격식 유지, 국소 편집, 번역투·AI 상투어 완화, 과윤문 방지와 추상 주어·긴 관형 수식·명사화·국소 자연성 재검수 개념(A-15, A-18, D-5, F-4/F-5, finalizer)을 `skills/polish-korean/` 설계에 아이디어 수준으로 참고
 - Included material: 원본 실행 파이프라인, 규칙 문구와 보조 자료를 복사하지 않고 단일 프롬프트형 범용 윤문 절차를 독자적으로 작성
 
-### Skill 설치 경로, Git 작업과 릴리스 버전
+### Skill 설치 경로, 플랫폼 도구, Git 작업과 릴리스 버전
 
 - Sources:
   - https://learn.chatgpt.com/docs/build-skills
@@ -86,9 +86,13 @@
   - https://git-scm.com/docs/git-tag
   - https://git-scm.com/docs/git-worktree
   - https://git-scm.com/docs/git-merge
+  - https://git-scm.com/docs/git-hash-object
+  - https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html
+  - https://docs.docker.com/engine/storage/bind-mounts/
+  - https://hub.docker.com/_/node
 - Checked: 2026-08-06
-- License decision: 공식 문서를 설치 위치·Git 동작·배포 방식·버전 규칙 확인에만 사용하고 외부 코드나 실질적 문구의 반입 대상으로 사용하지 않음
-- Scope: Codex와 Claude Code의 사용자·프로젝트 Skill 위치, standalone Skill과 plugin marketplace의 경계, linked worktree, fast-forward-only 통합, Skill 내부 revision과 annotated 배포 태그 운영을 아이디어 수준에서 참고
+- License decision: 공식 문서를 설치 위치·POSIX 셸 동작·컨테이너 격리·Git 동작·배포 방식·버전 규칙 확인에만 사용하고 외부 코드나 실질적 문구의 반입 대상으로 사용하지 않음
+- Scope: Codex와 Claude Code의 사용자·프로젝트 Skill 위치, standalone Skill과 plugin marketplace의 경계, POSIX `sh` 이식성, Git 기반 파일 지문, 읽기 전용 Linux 검증 컨테이너, linked worktree, fast-forward-only 통합, Skill 내부 revision과 annotated 배포 태그 운영을 아이디어 수준에서 참고
 - Included material: 원문의 예시와 실질적 문구를 복사하지 않고 이 저장소의 공용 설치 스크립트와 공개 정책에 맞춰 독자적으로 작성
 
 ### 커밋 메시지 구조와 trailer

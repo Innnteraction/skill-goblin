@@ -189,15 +189,39 @@ class FileVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
+def pyproject_script_groups(path: Path) -> list[dict[str, str]]:
+    try:
+        import tomllib
+    except ImportError:
+        groups: dict[str, dict[str, str]] = {"project.scripts": {}, "project.gui-scripts": {}}
+        section = ""
+        for raw_line in path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if line.startswith("[") and line.endswith("]"):
+                section = line[1:-1].strip()
+                continue
+            if section not in groups or not line or line.startswith("#") or "=" not in line:
+                continue
+            key, raw_value = (part.strip() for part in line.split("=", 1))
+            try:
+                value = ast.literal_eval(raw_value)
+            except (SyntaxError, ValueError):
+                continue
+            if isinstance(value, str):
+                groups[section][key.strip("'\"")] = value
+        return [groups["project.scripts"], groups["project.gui-scripts"]]
+
+    data = tomllib.loads(path.read_text(encoding="utf-8"))
+    project = data.get("project", {})
+    return [project.get("scripts", {}), project.get("gui-scripts", {})]
+
+
 def declarative_entrypoints(root: Path, module_index: dict[str, str]) -> list[dict]:
     entries: list[dict] = []
     pyproject = root / "pyproject.toml"
     if pyproject.is_file():
         try:
-            import tomllib
-            data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
-            groups = [data.get("project", {}).get("scripts", {}), data.get("project", {}).get("gui-scripts", {})]
-            for group in groups:
+            for group in pyproject_script_groups(pyproject):
                 for name, value in sorted(group.items()):
                     module, _, symbol = str(value).partition(":")
                     target_path = module_index.get(module, module.replace(".", "/") + ".py")
@@ -386,7 +410,8 @@ def main() -> int:
         result = analyze(args)
         output = Path(args.output).resolve()
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=False) + "\n", encoding="utf-8", newline="\n")
+        with output.open("w", encoding="utf-8", newline="\n") as stream:
+            stream.write(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=False) + "\n")
         print(f"python {args.command}: entrypoints={len(result['entrypoints'])} modules={len(result['modules'])} symbols={len(result['symbols'])} edges={len(result['edges'])} read_set={len(result['read_set'])}")
         for item in result["read_set"]:
             print(f"  {item['path']}:{item['start_line']}-{item['end_line']} ({item['reason']})")

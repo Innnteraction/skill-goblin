@@ -40,10 +40,10 @@ $write-diataxis-docs docs/reverse-engineering의 근거를 사용해 실패한 �
 
 - 로컬 Codex CLI·IDE·데스크톱 환경에서 발견되는 개인 Skill
 - 로컬 Claude Code에서 발견되는 개인 Skill
-- PowerShell 기준 구현과 동일한 핵심 동작을 제공하는 Bash 진입점
+- Windows PowerShell과 macOS·Linux POSIX `sh`에서 동일한 핵심 동작을 제공하는 관리 도구
 - MIT 공개 저장소에 맞춘 외부 자료 출처 관리와 민감정보 차단
 
-필요한 도구는 Git과 PowerShell 5.1 이상 또는 PowerShell 7이다. Bash 진입점도 내부적으로 `pwsh` 또는 `powershell.exe`를 사용한다. Gitleaks는 선택 사항이지만 설치되어 있으면 hook과 수동 검사에서 추가 탐지 계층으로 자동 사용된다.
+Windows에는 Git과 PowerShell 5.1 이상 또는 PowerShell 7이 필요하다. macOS·Linux에는 Git과 POSIX `sh`가 필요하며 PowerShell은 필요하지 않다. `reverse-engineer-service`는 Python 분석에 Python 3, JavaScript·TypeScript 분석에 Node.js를 사용하고 혼합 저장소에는 둘 다 필요하다. Gitleaks는 선택 사항이지만 설치되어 있으면 hook과 수동 검사에서 추가 탐지 계층으로 자동 사용된다.
 
 ## 빠른 시작
 
@@ -56,9 +56,9 @@ Set-Location skill-goblin
 ./scripts/install-skills.ps1 -Target All -Name summarize-changes
 ```
 
-`setup`은 현재 저장소에만 다음 Git 설정과 hook 경로를 적용하며 전역 설정은 바꾸지 않는다. 이 저장소는 개인용이므로 `user.name=Innnteraction`, `user.email=innnteractive@gmail.com`을 사용한다. 포크에서 다른 identity를 사용할 경우 `scripts/setup.ps1`의 값을 먼저 변경해야 한다.
+`setup`은 현재 저장소에만 다음 Git 설정과 hook 경로를 적용하며 전역 설정은 바꾸지 않는다. 이 저장소는 개인용이므로 `user.name=Innnteraction`, `user.email=innnteractive@gmail.com`을 사용한다. 포크에서 다른 identity를 사용할 경우 PowerShell과 Unix setup 구현의 값을 함께 변경해야 한다.
 
-Bash에서는 같은 PowerShell 코어를 호출하는 진입점을 사용한다.
+macOS·Linux에서는 독립적인 POSIX `sh` 진입점을 사용한다.
 
 ```bash
 git clone https://github.com/Innnteraction/skill-goblin.git
@@ -121,8 +121,8 @@ Codex도 clone한 저장소에서 같은 스크립트를 사용할 수 있다. `
 | 특정 Skill 설치 | `./scripts/install-skills.ps1 -Target All -Name <name>` | `./scripts/install-skills.sh --target all --name <name>` |
 | 전체 Skill 설치 | `./scripts/install-skills.ps1 -Target All` | `./scripts/install-skills.sh --target all` |
 | 프로젝트에 특정 Skill 설치 | `./scripts/install-skills.ps1 -Target All -Scope Project -ProjectPath <project> -Name <name>` | `./scripts/install-skills.sh --target all --scope project --project-path <project> --name <name>` |
-| staged 민감정보 검사 | `./scripts/check-sensitive.ps1 -Staged` | `./scripts/check-sensitive.sh -Staged` |
-| 전체 민감정보 검사 | `./scripts/check-sensitive.ps1 -All` | `./scripts/check-sensitive.sh -All` |
+| staged 민감정보 검사 | `./scripts/check-sensitive.ps1 -Staged` | `./scripts/check-sensitive.sh --staged` |
+| 전체 민감정보 검사 | `./scripts/check-sensitive.ps1 -All` | `./scripts/check-sensitive.sh --all` |
 
 `new-skill`에는 필요할 때만 `-WithReferences`, `-WithScripts`, `-WithAssets`를 추가한다. Bash에서는 각각 `--with-references`, `--with-scripts`, `--with-assets`를 사용한다.
 
@@ -196,6 +196,16 @@ Windows에서 `$HOME`이 비어 있으면 사용자 프로필 디렉터리를 �
 ./tests/run-tests.ps1
 ./scripts/validate-skills.ps1
 ./scripts/check-sensitive.ps1 -All
+git diff --check
+```
+
+macOS에서는 Unix 회귀 테스트를 직접 실행한다. Linux는 Docker가 있을 때 Debian 기반 컨테이너에 저장소를 읽기 전용으로 연결해 같은 테스트와 ShellCheck를 실행한다.
+
+```bash
+./tests/run-tests.sh
+./tests/run-linux-container.sh
+./scripts/validate-skills.sh
+./scripts/check-sensitive.sh --all
 git diff --check
 ```
 
