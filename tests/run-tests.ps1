@@ -91,15 +91,19 @@ try {
         Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/validate-skills.ps1') -Arguments @('-Name', 'long-skill', '-SkipSensitiveCheck') -ExpectedExitCode 1
         Remove-Item -LiteralPath $longSkillDirectory -Recurse -Force
 
+        $oldHome = $env:HOME
         $oldCodexHome = $env:CODEX_HOME
         $oldClaudeHome = $env:CLAUDE_HOME
         try {
-            $env:CODEX_HOME = Join-Path $temporaryRoot 'codex-home'
+            $env:HOME = Join-Path $temporaryRoot 'user-home'
+            $env:CODEX_HOME = Join-Path $temporaryRoot 'legacy-codex-home'
             $env:CLAUDE_HOME = Join-Path $temporaryRoot 'claude-home'
             Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/install-skills.ps1') -Arguments @('-Target', 'All', '-Name', 'sample-skill')
-            $codexCopy = Join-Path $env:CODEX_HOME 'skills/sample-skill/SKILL.md'
+            $codexCopy = Join-Path $env:HOME '.agents/skills/sample-skill/SKILL.md'
+            $legacyCodexCopy = Join-Path $env:CODEX_HOME 'skills/sample-skill/SKILL.md'
             $claudeCopy = Join-Path $env:CLAUDE_HOME 'skills/sample-skill/SKILL.md'
             Assert-True (Test-Path -LiteralPath $codexCopy) 'Codex 설치 실패'
+            Assert-True (-not (Test-Path -LiteralPath $legacyCodexCopy)) 'Codex가 이전 CODEX_HOME/skills 경로를 사용함'
             Assert-True (Test-Path -LiteralPath $claudeCopy) 'Claude 설치 실패'
 
             [IO.File]::AppendAllText($codexCopy, "`n충돌`n", [Text.Encoding]::UTF8)
@@ -108,6 +112,7 @@ try {
             Assert-True (-not ([IO.File]::ReadAllText($codexCopy).Contains('충돌'))) 'Force 재설치 실패'
         }
         finally {
+            $env:HOME = $oldHome
             $env:CODEX_HOME = $oldCodexHome
             $env:CLAUDE_HOME = $oldClaudeHome
         }

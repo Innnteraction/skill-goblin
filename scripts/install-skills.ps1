@@ -27,8 +27,8 @@ try {
     $homeDirectory = Get-UserHomeDirectory
     $targets = @()
     if ($Target -in @('Codex', 'All')) {
-        $codexHome = if ([string]::IsNullOrWhiteSpace($env:CODEX_HOME)) { Join-Path $homeDirectory '.codex' } else { $env:CODEX_HOME }
-        $targets += [PSCustomObject]@{ Name = 'Codex'; Path = Join-Path $codexHome 'skills' }
+        $agentsHome = Join-Path $homeDirectory '.agents'
+        $targets += [PSCustomObject]@{ Name = 'Codex'; Path = Join-Path $agentsHome 'skills' }
     }
     if ($Target -in @('Claude', 'All')) {
         $claudeHome = if ([string]::IsNullOrWhiteSpace($env:CLAUDE_HOME)) { Join-Path $homeDirectory '.claude' } else { $env:CLAUDE_HOME }
