@@ -34,16 +34,16 @@ $reverse-engineer-service 이 저장소가 제공하는 가치와 전체 구조�
 $write-diataxis-docs docs/reverse-engineering의 근거를 사용해 실패한 주문 처리만 안전하게 재실행하는 방법 안내서를 작성해줘.
 ```
 
-반복해서 문서를 제공할 독자를 프로젝트 공통 프로필로 정리하려면 명시적으로 저장을 요청한다. 프로젝트에 다른 문서 관례가 없으면 `docs/audiences/<role-slug>.md`를 사용한다.
+반복해서 문서를 제공할 독자를 프로젝트 공통 프로필로 정리하려면 명시적으로 저장을 요청한다. 프로젝트에 다른 문서 관례가 없으면 역할·반복 과업·공통 기반·근거와 수명주기를 `docs/audiences/<role-slug>.md`에 기록한다.
 
 ```text
-$write-diataxis-docs 운영 문서를 읽는 당직 엔지니어의 역할, 지식, 질문과 환경 제약을 근거 상태와 함께 docs/audiences/on-call-engineer.md에 정리해줘.
+$write-diataxis-docs 운영 문서를 읽는 당직 엔지니어의 역할, 반복 과업, 권한, 익숙한 용어·도구·작업 흐름과 환경 제약을 근거 상태와 함께 docs/audiences/on-call-engineer.md에 정리해줘. 적용 범위, 검토일, 무효화 조건과 미확인 질문도 남겨줘.
 ```
 
-기존 프로필을 적용할 때는 대상 파일과 이번 사용 순간을 함께 지정한다.
+기존 프로필을 적용할 때는 대상 파일과 이번 사용 순간을 함께 지정한다. 목표 개념별 지식 상태와 개념 연결은 재사용 프로필이 아니라 이번 문서의 조건으로 다룬다.
 
 ```text
-$write-diataxis-docs docs/audiences/on-call-engineer.md를 주 독자로 사용해 결제 재처리 방법 안내서를 작성해줘. 독자는 장애 알림을 받은 직후 안전한 재처리 여부를 판단해야 해.
+$write-diataxis-docs docs/audiences/on-call-engineer.md를 주 독자로 사용해 결제 재처리 방법 안내서를 작성해줘. 독자는 장애 알림을 받은 직후 안전한 재처리 여부를 판단해야 해. 메시지 큐는 알지만 멱등성 키는 부분적으로 이해한다고 가정하고, 익숙한 중복 요청 처리 경험과 멱등성 키 개념을 연결하되 대응하지 않는 한계도 밝혀줘.
 ```
 
 `reverse-engineer-service`는 대상 저장소의 코드를 실행하지 않는 정적 분석기로 엔트리포인트와 읽을 범위를 먼저 추출한다. Python은 표준 AST만으로 동작한다. JavaScript/TypeScript의 의미 기반 trace에는 대상 저장소의 `typescript` 또는 명시적인 TypeScript Compiler API 경로가 필요하다. Compiler API가 없고 대상 저장소에 `dependency-cruiser`가 있으면 module-only trace로 축소하며, 둘 다 없으면 패키지를 자동 설치하지 않고 manifest 탐색까지만 수행한다.

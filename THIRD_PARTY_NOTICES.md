@@ -26,10 +26,16 @@
   - https://diataxis.fr/quality/
   - https://www.gov.uk/service-manual/user-research/start-by-learning-user-needs
   - https://docs.oasis-open.org/dita/v1.0/langspec/audience.html
+  - https://developers.google.com/tech-writing/one/audience
+  - https://doi.org/10.1023/A:1011143116306
+  - https://doi.org/10.1207/s15516709cog0702_3
+  - https://doi.org/10.1007/s10648-007-9054-3
+  - https://research.ibm.com/publications/how-do-designers-and-user-experience-professionals-actually-perceive-and-use-personas
+  - https://www.w3.org/TR/2021/WD-personalization-semantics-content-1.0-20210812/
   - https://github.com/joshuadavidthomas/agent-skills/tree/main/skills/diataxis
-- Checked: 2026-08-06
-- License decision: Diátaxis 공식 자료와 공개 Skill의 CC BY-SA 4.0 기반 설명, GOV.UK의 사용자 요구 지침, OASIS DITA의 audience 메타데이터를 외부 코드·Skill 문구의 반입 대상으로 사용하지 않고 문서 유형, 근거 기반 역할 집단, 역할·과업·경험 수준 구분 개념만 참고함
-- Scope: `skills/write-diataxis-docs/`의 문서 계약, 유형 선택, 유형 간 내용 분리, 근거 검증, 역할 기반 독자 프로필과 독자 경험 검토 설계
+- Checked: 2026-08-07
+- License decision: Diátaxis 공식 자료와 공개 Skill의 CC BY-SA 4.0 기반 설명, GOV.UK·Google의 사용자·독자 지침, OASIS DITA와 W3C의 audience·personalization 메타데이터, 적응형 하이퍼미디어·공통 기반과 구조 매핑·전문성 역전 연구, IBM의 페르소나 운용 연구를 외부 코드·Skill 문구의 반입 대상으로 사용하지 않고 개념과 검증 관점만 참고함
+- Scope: `skills/write-diataxis-docs/`의 문서 계약, 유형 선택, 유형 간 내용 분리, 근거 검증, 역할 기반 독자 프로필, 공통 기반, 주제별 지식 상태, 개념 연결, 적응 결정과 독자 경험 검토 설계
 - Included material: 원문의 문구·템플릿·도표나 메타데이터 형식을 복사하거나 번역하지 않고 이 저장소의 역공학 evidence 계약과 소프트웨어·제품 문서 요구에 맞춰 독자적으로 작성
 
 ### 서비스 아키텍처 재구성 및 코드 탐색
