@@ -199,6 +199,8 @@ for document in documents:
     assert re.fullmatch(r"[a-f0-9]{64}", document["snapshot"]["source_digest"])
 PY
 
+python3 "$repository_root/tests/citation-validator-tests.py"
+
 cd "$repository_root"
 ./scripts/validate-skills.sh
 ./scripts/check-sensitive.sh --all --skip-gitleaks

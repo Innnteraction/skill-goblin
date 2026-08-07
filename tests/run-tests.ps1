@@ -300,6 +300,8 @@ try {
     }
 
     Invoke-TestScript -Path (Join-Path $repositoryRoot 'tests/reverse-engineer-service-tests.ps1')
+    & python (Join-Path $repositoryRoot 'tests/citation-validator-tests.py')
+    Assert-Equal 0 $LASTEXITCODE '인용 검사기 회귀 테스트 실패'
     Write-Host '[ok] 모든 통합 테스트를 통과했습니다.'
 }
 finally {
