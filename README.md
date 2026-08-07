@@ -83,31 +83,31 @@ cd skill-goblin
 
 ## GitHub에서 설치
 
-재현 가능한 설치에는 `v0.2.1` 태그를 사용한다. `main`은 다음 릴리스 전 변경을 평가하려는 경우에만 태그 자리에 사용한다.
+재현 가능한 설치에는 `v0.2.2` 태그를 사용한다. `main`은 다음 릴리스 전 변경을 평가하려는 경우에만 태그 자리에 사용한다.
 
 Codex에서는 `$skill-installer`에 GitHub의 Skill 경로와 설치 목적지를 함께 전달한다. 전역 설치 요청은 다음과 같다.
 
 ```text
-$skill-installer Install https://github.com/Innnteraction/skill-goblin/tree/v0.2.1/skills/write-commit-message into $HOME/.agents/skills.
+$skill-installer Install https://github.com/Innnteraction/skill-goblin/tree/v0.2.2/skills/write-commit-message into $HOME/.agents/skills.
 ```
 
 특정 프로젝트에만 설치하려면 해당 저장소의 절대 경로 아래 `.agents/skills`를 목적지로 지정한다.
 
 ```text
-$skill-installer Install https://github.com/Innnteraction/skill-goblin/tree/v0.2.1/skills/write-commit-message into <project>/.agents/skills.
+$skill-installer Install https://github.com/Innnteraction/skill-goblin/tree/v0.2.2/skills/write-commit-message into <project>/.agents/skills.
 ```
 
 Claude Code의 standalone Skill은 저장소를 clone한 뒤 공용 설치 스크립트로 복사한다. GitHub marketplace나 plugin manifest는 사용하지 않는다.
 
 ```powershell
-git clone --branch v0.2.1 https://github.com/Innnteraction/skill-goblin.git
+git clone --branch v0.2.2 https://github.com/Innnteraction/skill-goblin.git
 Set-Location skill-goblin
 ./scripts/install-skills.ps1 -Target Claude -Name write-commit-message
 ./scripts/install-skills.ps1 -Target Claude -Scope Project -ProjectPath <project> -Name write-commit-message
 ```
 
 ```bash
-git clone --branch v0.2.1 https://github.com/Innnteraction/skill-goblin.git
+git clone --branch v0.2.2 https://github.com/Innnteraction/skill-goblin.git
 cd skill-goblin
 ./scripts/install-skills.sh --target claude --name write-commit-message
 ./scripts/install-skills.sh --target claude --scope project --project-path <project> --name write-commit-message
