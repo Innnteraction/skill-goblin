@@ -1,6 +1,18 @@
-# skill-goblin
+<p align="center">
+  <img src="assets/brand/skill-goblin.png" width="300" alt="Skill Goblin 마스코트: 빛나는 Agent Skill 자루를 든 초록색 고블린">
+</p>
 
-Codex와 Claude Code에서 함께 사용할 개인용 Agent Skill을 로컬에서 만들고, 검증하고, 설치하는 저장소다. `skills/`를 공용 원본으로 유지하고 도구별 개인 Skill 경로에는 검증된 복사본을 배포한다.
+<h1 align="center">skill-goblin</h1>
+
+<p align="center">Codex와 Claude Code에서 함께 쓰는 Agent Skill을 만들고, 검증하고, 설치하는 도구 모음</p>
+
+<p align="center">
+  <a href="https://github.com/Innnteraction/skill-goblin/tags"><img alt="Latest release" src="https://img.shields.io/github/v/tag/Innnteraction/skill-goblin?label=release&amp;sort=semver"></a>
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/github/license/Innnteraction/skill-goblin"></a>
+  <img alt="Supports Codex and Claude Code" src="https://img.shields.io/badge/agents-Codex%20%2B%20Claude%20Code-7aa2f7">
+</p>
+
+`skills/`를 공용 원본으로 유지하고 도구별 개인 Skill 경로에는 검증된 복사본을 배포한다.
 
 문서와 Skill 본문은 한국어를 기본으로 작성하며, Skill 이름과 코드 식별자는 검색성과 호환성을 위해 영어를 사용한다. 클라우드 Skill, GitHub Actions, 외부 서비스 연동은 다루지 않는다.
 
