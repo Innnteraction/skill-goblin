@@ -38,7 +38,7 @@ function Get-BashCommand {
 function Invoke-BashTestScript {
     param([string]$Path, [string[]]$Arguments = @(), [int]$ExpectedExitCode = 0)
     $bash = Get-BashCommand
-    & $bash $Path @Arguments | Out-Host
+    & $bash -l $Path @Arguments | Out-Host
     Assert-Equal -Expected $ExpectedExitCode -Actual $LASTEXITCODE -Message "예상하지 못한 Bash 종료 코드: $Path"
 }
 
@@ -139,7 +139,7 @@ try {
             Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/validate-skills.ps1') -Arguments @('-SkipSensitiveCheck') -ExpectedExitCode 1
         }
         finally {
-            [IO.File]::WriteAllText((Join-Path $temporaryRoot 'VERSION'), $validRepositoryVersion, [Text.Encoding]::UTF8)
+            [IO.File]::WriteAllText((Join-Path $temporaryRoot 'VERSION'), $validRepositoryVersion, (New-Object Text.UTF8Encoding($false)))
         }
 
         $oldHome = $env:HOME
