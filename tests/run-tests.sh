@@ -39,6 +39,10 @@ cleanup() {
 }
 trap cleanup 0 HUP INT TERM
 
+mkdir "$temporary_root/empty-path"
+PATH="$temporary_root/empty-path" /bin/sh -c '. "$1"; command -v mktemp >/dev/null' sh "$repository_root/scripts/_common.sh" ||
+  fail '공용 Shell 초기화가 /usr/bin 도구 경로를 복구하지 못함'
+
 for path in "$repository_root"/scripts/*.sh "$repository_root"/.githooks/* "$repository_root"/skills/reverse-engineer-service/scripts/analyze-code.sh; do
   [ "${path##*/}" = _common.sh ] && continue
   [ -x "$path" ] || fail "실행 권한이 없습니다: $path"

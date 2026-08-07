@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if ! command -v mktemp >/dev/null 2>&1 && [ -x /usr/bin/mktemp ]; then
+  if [ -n "${PATH-}" ]; then PATH=/usr/bin:$PATH; else PATH=/usr/bin; fi
+  export PATH
+fi
+
 repository_root() {
   root=$(git rev-parse --show-toplevel 2>/dev/null) || {
     printf '%s\n' '현재 디렉터리는 Git 저장소가 아닙니다.' >&2

@@ -198,8 +198,16 @@ try {
 
         & git add .
         if ($LASTEXITCODE -ne 0) { throw '안전한 파일 staging 실패' }
-        & git commit -m '안전한 테스트 커밋' | Out-Host
-        Assert-Equal 0 $LASTEXITCODE '안전한 commit이 hook에서 차단됨'
+        $gitExecutable = (Get-Command git -ErrorAction Stop).Source
+        $oldPath = $env:PATH
+        try {
+            $env:PATH = Split-Path -Parent $gitExecutable
+            & git commit -m '안전한 테스트 커밋' | Out-Host
+            Assert-Equal 0 $LASTEXITCODE '제한된 PATH에서 안전한 commit이 hook에서 차단됨'
+        }
+        finally {
+            $env:PATH = $oldPath
+        }
         $headCommit = (& git rev-parse HEAD).Trim()
         Invoke-TestScript -Path (Join-Path $temporaryRoot 'scripts/check-sensitive.ps1') -Arguments @('-Range', ($headCommit + '^!'), '-SkipGitleaks')
 
